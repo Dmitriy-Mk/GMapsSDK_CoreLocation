@@ -1,4 +1,4 @@
-# GMapsSDK-CoreLocation
+# GMapsSDK_CoreLocation
 In this project i have added another test of GoogleMaps and CoreLocation, for commercial project. 
 
 Projects details: 
