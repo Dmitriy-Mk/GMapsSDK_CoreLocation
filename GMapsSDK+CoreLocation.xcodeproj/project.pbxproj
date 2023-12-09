@@ -16,6 +16,7 @@
 		BA4C016C2B0CC3FA004C9BDF /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4C016B2B0CC3FA004C9BDF /* MapViewController.swift */; };
 		BA4C016E2B0CC408004C9BDF /* Presenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4C016D2B0CC408004C9BDF /* Presenter.swift */; };
 		BA4EB3762B18D5A70055A017 /* PlacesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4EB3752B18D5A70055A017 /* PlacesViewController.swift */; };
+		BACF151D2B23CB1F009D6B96 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACF151C2B23CB1F009D6B96 /* Errors.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		BA4C016B2B0CC3FA004C9BDF /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		BA4C016D2B0CC408004C9BDF /* Presenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presenter.swift; sourceTree = "<group>"; };
 		BA4EB3752B18D5A70055A017 /* PlacesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesViewController.swift; sourceTree = "<group>"; };
+		BACF151C2B23CB1F009D6B96 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		C290449EDD4B300C8A67C7B8 /* Pods-GMapsSDK+CoreLocation.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GMapsSDK+CoreLocation.release.xcconfig"; path = "Target Support Files/Pods-GoogleSDK/Pods-GMapsSDK+CoreLocation.release.xcconfig"; sourceTree = "<group>"; };
 		D0A29D335EA131F49FEA27B7 /* Pods-GMapsSDK+CoreLocation.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GMapsSDK+CoreLocation.release.xcconfig"; path = "Target Support Files/Pods-GMapsSDK+CoreLocation/Pods-GMapsSDK+CoreLocation.release.xcconfig"; sourceTree = "<group>"; };
 		DD7470E3B7FA275C2BE40F8D /* Pods-GMapsSDK+CoreLocation.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GMapsSDK+CoreLocation.debug.xcconfig"; path = "Target Support Files/Pods-GMapsSDK+CoreLocation/Pods-GMapsSDK+CoreLocation.debug.xcconfig"; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 		BA4C01532B0CC331004C9BDF /* GMapsSDK+CoreLocation */ = {
 			isa = PBXGroup;
 			children = (
+				BACF151B2B23CB09009D6B96 /* Errors */,
 				BA4EB3722B18D35B0055A017 /* System */,
 				BA4EB3742B18D3CA0055A017 /* Pages */,
 				BA4EB3732B18D3730055A017 /* Resources */,
@@ -131,6 +134,14 @@
 				BA4C01682B0CC3D1004C9BDF /* MapPage */,
 			);
 			path = Pages;
+			sourceTree = "<group>";
+		};
+		BACF151B2B23CB09009D6B96 /* Errors */ = {
+			isa = PBXGroup;
+			children = (
+				BACF151C2B23CB1F009D6B96 /* Errors.swift */,
+			);
+			path = Errors;
 			sourceTree = "<group>";
 		};
 		DA991E0C505A6CB943403B13 /* Frameworks */ = {
@@ -261,6 +272,7 @@
 				BA4C01572B0CC331004C9BDF /* SceneDelegate.swift in Sources */,
 				BA4C016C2B0CC3FA004C9BDF /* MapViewController.swift in Sources */,
 				BA4C016A2B0CC3DF004C9BDF /* Model.swift in Sources */,
+				BACF151D2B23CB1F009D6B96 /* Errors.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

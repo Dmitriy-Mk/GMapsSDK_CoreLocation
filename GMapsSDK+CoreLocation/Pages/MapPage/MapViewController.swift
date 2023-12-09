@@ -10,6 +10,13 @@ import GoogleMaps
 import GooglePlaces
 import CoreLocation
 
+protocol MapViewControllerOutput {
+    func drowRoute(map: GMSMapView,
+                   destInfo: [String],
+                   origin: CLLocationCoordinate2D,
+                   destination: CLLocationCoordinate2D) throws
+}
+
 final class MapViewController: UIViewController {
     // MARK: - Data
     private let coordinates = Coordinates(latitude: -33.869405,
@@ -23,6 +30,7 @@ final class MapViewController: UIViewController {
     private var likelyPlaces: [GMSPlace] = []
     private var selectedPlace: GMSPlace?
     private var addActionCounter: Int = 0
+    private var presenter: MapViewControllerOutput?
     
     // MARK: - UI objects and setups
     private let getPlacesButton = UIButton()
@@ -63,6 +71,7 @@ final class MapViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter = MapPresenter()
         locationManager = CLLocationManager()
         locationManager.delegate = self
         view.backgroundColor = .cyan
@@ -71,13 +80,27 @@ final class MapViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         if let place = selectedPlace {
-            let marker = GMSMarker(position: place.coordinate)
+            guard let name = selectedPlace?.name else { return }
+            guard let address = selectedPlace?.formattedAddress else { return }
+            guard let currentLocation else { return }
+            
+            let strArray = [
+                name,
+                address
+            ]
 
             mapView.clear()
 
-            marker.title = selectedPlace?.name
-            marker.snippet = selectedPlace?.formattedAddress
-            marker.map = mapView
+            do {
+                try presenter?.drowRoute(map: mapView,
+                                         destInfo: strArray,
+                                         origin: currentLocation.coordinate,
+                                         destination: place.coordinate)
+            } catch URLError.urlGetError {
+                print("Cant get current route via URL!")
+            } catch {
+                print(error)
+            }
             setupGooglePlaces()
         }
     }
@@ -99,9 +122,9 @@ final class MapViewController: UIViewController {
     }
     
     private func setupLocationManager() {
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
         self.locationManager.startUpdatingLocation()
-        self.locationManager.distanceFilter = 30
+        self.locationManager.distanceFilter = 70
     }
     
     private func setupGooglePlaces() {
@@ -130,6 +153,58 @@ final class MapViewController: UIViewController {
             }
             
             strongSelf.addGetPlacesButtonAction()
+        }
+    }
+    
+    private func getUserPlaceMark(by location: CLLocation) throws {
+        let geocoder = GMSGeocoder()
+        var passedError: Error? = nil
+        
+        geocoder.reverseGeocodeCoordinate(location.coordinate) { (response, error) in
+                if let error = error {
+                    print("Reverse geocoding failed with error: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let result = response?.firstResult() else {
+                    print("No results found")
+                    return
+                }
+
+                var addressComponents: [String] = []
+
+                if let thoroughfare = result.thoroughfare {
+                    addressComponents.append(thoroughfare)
+                    print(thoroughfare)
+                }
+
+                if let subLocality = result.subLocality {
+                    addressComponents.append(subLocality)
+                    print(subLocality)
+                }
+
+                if let city = result.locality {
+                    addressComponents.append(city)
+                    print(city)
+                }
+
+                if let postalCode = result.postalCode {
+                    addressComponents.append(postalCode)
+                    print(postalCode)
+                }
+
+                if let country = result.country {
+                    addressComponents.append(country)
+                    print(country)
+                }
+
+                let address = addressComponents.joined(separator: ", ")
+                print("Current Address: \(address)")
+            }
+        
+        guard passedError == nil else {
+            print(passedError ?? "")
+            throw ReverseGeocodingError.errorWhenReverseLocation
         }
     }
 }
@@ -168,12 +243,22 @@ extension MapViewController: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let currentLocation: CLLocation = locations.first {
+        if let currentLocation: CLLocation = locations.last {
             let zoomLevel = locationManager.accuracyAuthorization == .fullAccuracy ? preciseLocationZoomLevel : aproximateLocationZoomLevel
             let camera = GMSCameraPosition(latitude: currentLocation.coordinate.latitude,
                                            longitude: currentLocation.coordinate.longitude,
                                            zoom: zoomLevel)
             
+            do {
+                try self.getUserPlaceMark(by: currentLocation)
+            } catch ReverseGeocodingError.errorWhenReverseLocation {
+                print("Can't Reverse CLLocation to CLPlaceMark!")
+            } catch {
+                print("Something whent wrong with Geocoding!")
+            }
+            
+            self.currentLocation = currentLocation
+
             if mapView.isHidden {
                 mapView.isHidden = false
                 mapView.camera = camera
