@@ -8,10 +8,41 @@
 import CoreLocation
 import GoogleMaps
 
-final class MapPresenter: MapViewControllerOutput {
+final class MapPresenter {
     private let apiKey = "AIzaSyD9AwH3h0wlVcrukukFuNhUJRpjLvaek7Q"
+    weak var view: MapViewInput!
+    var model: MapModelInput!
+    var mapView: GMSMapView?
     
-    func drowRoute(map: GMSMapView, destInfo: [String], origin: CLLocationCoordinate2D, destination: CLLocationCoordinate2D) throws {
+    private func showPath(polylineString: String, for map: GMSMapView) {
+        let path = GMSPath(fromEncodedPath: polylineString)
+        let polyline = GMSPolyline(path: path)
+        
+        polyline.strokeWidth = 5.0
+        polyline.strokeColor = .systemBlue
+        polyline.map = map
+        
+        DispatchQueue.main.async {
+            if let path {
+                let bounds = GMSCoordinateBounds(path: path)
+                let cameraUpdate = GMSCameraUpdate.fit(bounds, withPadding: 50.0)
+                
+                map.animate(with: cameraUpdate)
+            }
+        }
+    }
+}
+
+// MARK: - extensions
+extension MapPresenter: MapViewOutput {
+    func loadView() {
+        model.setupMapView()
+        if let mapView {
+            view.loadMapView(mapView)
+        }
+    }
+    
+    func drawRoute(map: GMSMapView, destInfo: [String], origin: CLLocationCoordinate2D, destination: CLLocationCoordinate2D) throws {
         let config = URLSessionConfiguration.default
         let session = URLSession(configuration: config)
         let originString = "\(origin.latitude),\(origin.longitude)"
@@ -32,7 +63,7 @@ final class MapPresenter: MapViewControllerOutput {
             print(response ?? "Response is empty!")
             
             do {
-                guard let jsonData: [String: Any] = try JSONSerialization.jsonObject(with: parsedData, 
+                guard let jsonData: [String: Any] = try JSONSerialization.jsonObject(with: parsedData,
                                                                                      options: .fragmentsAllowed) as? [String: Any] else { return }
                 guard let routes = jsonData["routes"] as? NSArray else {
                     print("Cant get routes!")
@@ -50,10 +81,10 @@ final class MapPresenter: MapViewControllerOutput {
                             return
                         }
                         let distance = legs[0]["distance"] as? NSDictionary
-                        let distanceValue = distance?["value"] as? Int ?? 0
+//                        let distanceValue = distance?["value"] as? Int ?? 0
                         
                         let duration = legs[0]["duration"] as? NSDictionary
-                        let totalDurationInSeconds = duration?["value"] as? Int ?? 0
+//                        let totalDurationInSeconds = duration?["value"] as? Int ?? 0
 
                         guard let points else { return }
                         self.showPath(polylineString: points, for: map)
@@ -86,22 +117,10 @@ final class MapPresenter: MapViewControllerOutput {
         }
         task.resume()
     }
-    
-    private func showPath(polylineString: String, for map: GMSMapView) {
-        let path = GMSPath(fromEncodedPath: polylineString)
-        let polyline = GMSPolyline(path: path)
-        
-        polyline.strokeWidth = 5.0
-        polyline.strokeColor = .systemBlue
-        polyline.map = map
-        
-        DispatchQueue.main.async {
-            if let path {
-                let bounds = GMSCoordinateBounds(path: path)
-                let cameraUpdate = GMSCameraUpdate.fit(bounds, withPadding: 50.0)
-                
-                map.animate(with: cameraUpdate)
-            }
-        }
+}
+
+extension MapPresenter: MapModelOutput {
+    func completedMapView(_ mapView: GMSMapView) {
+        self.mapView = mapView
     }
 }

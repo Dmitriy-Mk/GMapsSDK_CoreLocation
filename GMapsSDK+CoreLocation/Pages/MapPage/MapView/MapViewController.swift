@@ -10,27 +10,18 @@ import GoogleMaps
 import GooglePlaces
 import CoreLocation
 
-protocol MapViewControllerOutput {
-    func drowRoute(map: GMSMapView,
-                   destInfo: [String],
-                   origin: CLLocationCoordinate2D,
-                   destination: CLLocationCoordinate2D) throws
-}
-
 final class MapViewController: UIViewController {
     // MARK: - Data
-    private let coordinates = Coordinates(latitude: -33.869405,
-                                  longitude: 152.199)
     private var locationManager: CLLocationManager!
     private var placesClient: GMSPlacesClient!
     private var mapView: GMSMapView!
     private var currentLocation: CLLocation?
-    private var preciseLocationZoomLevel: Float = 15.0
-    private var aproximateLocationZoomLevel: Float = 10.0
     private var likelyPlaces: [GMSPlace] = []
     private var selectedPlace: GMSPlace?
     private var addActionCounter: Int = 0
-    private var presenter: MapViewControllerOutput?
+    private let locationDetails = LocationDetails(preciseLocationZoomLevel: 15.0,
+                                                  aproximateLocationZoomLevel: 10.0)
+    var presenter: MapViewOutput?
     
     // MARK: - UI objects and setups
     private let getPlacesButton = UIButton()
@@ -66,16 +57,20 @@ final class MapViewController: UIViewController {
     // MARK: - Lifecycle
     override func loadView() {
         super.loadView()
-        setupGoogleMaps()
+        presenter?.loadView()
+        self.view = mapView
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter = MapPresenter()
         locationManager = CLLocationManager()
         locationManager.delegate = self
         view.backgroundColor = .cyan
         setupGetPlacesButton()
+    }
+    
+    @objc private func onTimerUpdate () {
+        print("Timer expired!")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -83,7 +78,6 @@ final class MapViewController: UIViewController {
             guard let name = selectedPlace?.name else { return }
             guard let address = selectedPlace?.formattedAddress else { return }
             guard let currentLocation else { return }
-            
             let strArray = [
                 name,
                 address
@@ -92,7 +86,7 @@ final class MapViewController: UIViewController {
             mapView.clear()
 
             do {
-                try presenter?.drowRoute(map: mapView,
+                try presenter?.drawRoute(map: mapView,
                                          destInfo: strArray,
                                          origin: currentLocation.coordinate,
                                          destination: place.coordinate)
@@ -106,21 +100,6 @@ final class MapViewController: UIViewController {
     }
     
     //MARK: - Business logic
-    private func setupGoogleMaps() {
-        let zoomLevel = aproximateLocationZoomLevel
-        let camera = GMSCameraPosition(latitude: coordinates.latitude,
-                                       longitude: coordinates.longitude,
-                                       zoom: zoomLevel)
-        mapView = GMSMapView()
-        mapView.camera = camera
-        mapView.settings.myLocationButton = true
-        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        mapView.isMyLocationEnabled = true
-        mapView.frame = view.frame
-        view = mapView
-        mapView.isHidden = true
-    }
-    
     private func setupLocationManager() {
         self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
         self.locationManager.startUpdatingLocation()
@@ -158,7 +137,7 @@ final class MapViewController: UIViewController {
     
     private func getUserPlaceMark(by location: CLLocation) throws {
         let geocoder = GMSGeocoder()
-        var passedError: Error? = nil
+        let passedError: Error? = nil
         
         geocoder.reverseGeocodeCoordinate(location.coordinate) { (response, error) in
                 if let error = error {
@@ -209,7 +188,7 @@ final class MapViewController: UIViewController {
     }
 }
 
-//MARK: - Extensions
+// MARK: - Extensions
 extension MapViewController: CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let accuracy = manager.accuracyAuthorization
@@ -244,7 +223,7 @@ extension MapViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let currentLocation: CLLocation = locations.last {
-            let zoomLevel = locationManager.accuracyAuthorization == .fullAccuracy ? preciseLocationZoomLevel : aproximateLocationZoomLevel
+            let zoomLevel = locationManager.accuracyAuthorization == .fullAccuracy ? locationDetails.preciseLocationZoomLevel : locationDetails.aproximateLocationZoomLevel
             let camera = GMSCameraPosition(latitude: currentLocation.coordinate.latitude,
                                            longitude: currentLocation.coordinate.longitude,
                                            zoom: zoomLevel)
@@ -276,9 +255,16 @@ extension MapViewController: CLLocationManagerDelegate {
     }
 }
 
-//MARK: - Pass Selected Place
+// MARK: - Pass Selected Place
 extension MapViewController: PassLikelyPlace {
     func passingSelectedPlace(_ place: GMSPlace) {
         selectedPlace = place
+    }
+}
+
+// MARK: - Model View Input
+extension MapViewController: MapViewInput {
+    func loadMapView(_ mapView: GMSMapView) {
+        self.mapView = mapView
     }
 }
