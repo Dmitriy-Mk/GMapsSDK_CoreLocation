@@ -15,4 +15,3 @@ The test includes following tasks:
 1) User's current location updates in Background mode
 2) Battery save code style as far as possible for step-by-step navigation
 3) Adhere to the SOLID principles
-4) Include tests (the main reason why i used here MVP architecture)
