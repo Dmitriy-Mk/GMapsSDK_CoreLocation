@@ -11,6 +11,7 @@ import GooglePlaces
 class PlacesViewController: UIViewController {
     
     //MARK: - Data
+    private let alertsFactory: AlertsFactoryInterface = AlertsFactory()
     private var likelyPlaces: [GMSPlace] = [] {
         didSet {
             self.placesTable.reloadData()
@@ -92,7 +93,13 @@ extension PlacesViewController: UITableViewDelegate {
 }
 
 extension PlacesViewController: PlacesViewInput {
-    func reloadTableView(with datasource: [GMSPlace]) {
-        self.likelyPlaces = datasource
+    func passTableView(datasource: [GMSPlace]) {
+        
+        likelyPlaces = datasource
+        
+        if likelyPlaces.isEmpty {
+            let alertVC = alertsFactory.showAlert(with: .placesFailure)
+            present(alertVC, animated: true)
+        }
     }
 }

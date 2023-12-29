@@ -8,5 +8,5 @@
 import GooglePlaces
 
 protocol PlacesViewInput: AnyObject {
-    func reloadTableView(with datasource: [GMSPlace])
+    func passTableView(datasource: [GMSPlace])
 }

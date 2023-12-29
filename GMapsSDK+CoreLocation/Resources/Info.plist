@@ -20,6 +20,8 @@
 		</dict>
 	</dict>
 	<key>UIBackgroundModes</key>
-	<array/>
+	<array>
+		<string>location</string>
+	</array>
 </dict>
 </plist>

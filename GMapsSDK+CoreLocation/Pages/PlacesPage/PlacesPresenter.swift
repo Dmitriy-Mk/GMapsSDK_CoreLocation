@@ -27,6 +27,6 @@ extension PlacesPresenter: PlacesModelOutput {
     
     func getPlaces(_ places: [GMSPlace]) {
         self.likelyPlaces = places
-        view?.reloadTableView(with: self.likelyPlaces)
+        view?.passTableView(datasource: self.likelyPlaces)
     }
 }
