@@ -7,7 +7,7 @@ In this project i have added another test of GoogleMaps and CoreLocation, for co
 
 
 Projects details: 
-- Test project's idea: it is a google's standard guide idea -> get user's current location and by tapping the Places button display 5 Most Liked places (around user's current location)
+- Test project's idea -> get user's current location and by tapping the Places button display 5 Most Liked places. After clicking on each of Liked Places, user navigates to Map Page, where the road drawed between current and destination locations.
 - Architecture: MVP
 - App's structure: the app consists of two pages -> MapViewController and PlacesViewController
 
