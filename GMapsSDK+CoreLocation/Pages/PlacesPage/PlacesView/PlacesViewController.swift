@@ -8,18 +8,12 @@
 import UIKit
 import GooglePlaces
 
-protocol PassLikelyPlace: AnyObject {
-    func passingSelectedPlace(_ place: GMSPlace)
-}
-
 class PlacesViewController: UIViewController {
-
-    //MARK: - Data
-    var likelyPlaces: [GMSPlace] = []
-    let cellReuseID = "placesCell"
-    var dataPassingDelegate: PassLikelyPlace?
     
-    //MARK: - UI objects and setups
+    //MARK: - Data
+    var presenter: PlacesViewOutput!
+    let cellReuseID = "placesCell"
+    var dataPassingDelegate: PassLikelyPlaceDelegate?
     private let placesTable = UITableView()
     
     private func setupPlacesTableView() {
@@ -47,8 +41,9 @@ class PlacesViewController: UIViewController {
     //MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        presenter.fetchPlaces()
         title = "Most Liked Places"
+        view.backgroundColor = .white
         placesTable.backgroundColor = .white
         setupPlacesTableView()
     }
@@ -56,12 +51,12 @@ class PlacesViewController: UIViewController {
 
 extension PlacesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        likelyPlaces.count
+        presenter.placesCount
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseID, for: indexPath)
-        let item = likelyPlaces[indexPath.row]
+        let item = presenter.getPlace(at: indexPath.row)
         
         cell.textLabel?.text = item.name
         cell.backgroundColor = .white
@@ -71,8 +66,11 @@ extension PlacesViewController: UITableViewDataSource {
 
 extension PlacesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        dataPassingDelegate?.passingSelectedPlace(likelyPlaces[indexPath.row])
+        let item = presenter.getPlace(at: indexPath.row)
+        
+        dataPassingDelegate?.passingSelectedPlace(item)
         navigationController?.popViewController(animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

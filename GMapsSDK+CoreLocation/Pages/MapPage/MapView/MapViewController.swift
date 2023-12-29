@@ -13,12 +13,9 @@ import CoreLocation
 final class MapViewController: UIViewController {
     // MARK: - Data
     private var locationManager: CLLocationManager!
-    private var placesClient: GMSPlacesClient!
     private var mapView: GMSMapView!
     private var currentLocation: CLLocation?
-    private var likelyPlaces: [GMSPlace] = []
     private var selectedPlace: GMSPlace?
-    private var addActionCounter: Int = 0
     private let locationDetails = LocationDetails(preciseLocationZoomLevel: 15.0,
                                                   aproximateLocationZoomLevel: 10.0)
     var presenter: MapViewOutput?
@@ -27,18 +24,13 @@ final class MapViewController: UIViewController {
     private let getPlacesButton = UIButton()
     
     private func addGetPlacesButtonAction() {
-        if !(likelyPlaces.isEmpty) {
-            addActionCounter += 1
-            if addActionCounter == 1 {
-                getPlacesButton.addAction(UIAction(handler: { [weak self] _ in
-                    guard let strongSelf = self else { return }
-                    let vc = PlacesViewController()
-                    strongSelf.navigationController?.pushViewController(vc, animated: true)
-                    vc.likelyPlaces = strongSelf.likelyPlaces
-                    vc.dataPassingDelegate = self
-                }), for: .touchUpInside)
+        getPlacesButton.addAction(UIAction(handler: { [weak self] _ in
+            guard let strongSelf = self else { return }
+            if let placesVC = PlacesModuleAssembly.assemble() as? PlacesViewController {
+                strongSelf.navigationController?.pushViewController(placesVC, animated: true)
+                placesVC.dataPassingDelegate = self
             }
-        }
+        }), for: .touchUpInside)
     }
     
     private func setupGetPlacesButton() {
@@ -67,6 +59,7 @@ final class MapViewController: UIViewController {
         locationManager.delegate = self
         view.backgroundColor = .cyan
         setupGetPlacesButton()
+        addGetPlacesButtonAction()
     }
     
     @objc private func onTimerUpdate () {
@@ -82,9 +75,9 @@ final class MapViewController: UIViewController {
                 name,
                 address
             ]
-
+            
             mapView.clear()
-
+            
             do {
                 try presenter?.drawRoute(map: mapView,
                                          destInfo: strArray,
@@ -95,7 +88,6 @@ final class MapViewController: UIViewController {
             } catch {
                 print(error)
             }
-            setupGooglePlaces()
         }
     }
     
@@ -106,80 +98,80 @@ final class MapViewController: UIViewController {
         self.locationManager.distanceFilter = 70
     }
     
-    private func setupGooglePlaces() {
-        let placeFields: GMSPlaceField = [.name, .formattedAddress, .coordinate]
-                
-        placesClient = GMSPlacesClient.shared()
-        
-        likelyPlaces.removeAll()
-        
-        placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: placeFields) {
-            [weak self] placeLikelihoods, error in
-            
-            guard let strongSelf = self else {return}
-            guard error == nil else {
-                print("Current place error: \(error?.localizedDescription ?? "Unknowed Error Was Accure!")")
-                return
-            }
-            guard let placeLikelihoods = placeLikelihoods else {
-                print("No places found.")
-                return
-            }
-            
-            for likelihood in placeLikelihoods {
-                let place = likelihood.place
-                strongSelf.likelyPlaces.append(place)
-            }
-            
-            strongSelf.addGetPlacesButtonAction()
-        }
-    }
+    //    private func setupGooglePlaces() {
+    //        let placeFields: GMSPlaceField = [.name, .formattedAddress, .coordinate]
+    //
+    //        placesClient = GMSPlacesClient.shared()
+    //
+    //        likelyPlaces.removeAll()
+    //
+    //        placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: placeFields) {
+    //            [weak self] placeLikelihoods, error in
+    //
+    //            guard let strongSelf = self else {return}
+    //            guard error == nil else {
+    //                print("Current place error: \(error?.localizedDescription ?? "Unknowed Error Was Accure!")")
+    //                return
+    //            }
+    //            guard let placeLikelihoods = placeLikelihoods else {
+    //                print("No places found.")
+    //                return
+    //            }
+    //
+    //            for likelihood in placeLikelihoods {
+    //                let place = likelihood.place
+    //                strongSelf.likelyPlaces.append(place)
+    //            }
+    //
+    //            strongSelf.addGetPlacesButtonAction()
+    //        }
+    //    }
     
     private func getUserPlaceMark(by location: CLLocation) throws {
         let geocoder = GMSGeocoder()
         let passedError: Error? = nil
         
         geocoder.reverseGeocodeCoordinate(location.coordinate) { (response, error) in
-                if let error = error {
-                    print("Reverse geocoding failed with error: \(error.localizedDescription)")
-                    return
-                }
-
-                guard let result = response?.firstResult() else {
-                    print("No results found")
-                    return
-                }
-
-                var addressComponents: [String] = []
-
-                if let thoroughfare = result.thoroughfare {
-                    addressComponents.append(thoroughfare)
-                    print(thoroughfare)
-                }
-
-                if let subLocality = result.subLocality {
-                    addressComponents.append(subLocality)
-                    print(subLocality)
-                }
-
-                if let city = result.locality {
-                    addressComponents.append(city)
-                    print(city)
-                }
-
-                if let postalCode = result.postalCode {
-                    addressComponents.append(postalCode)
-                    print(postalCode)
-                }
-
-                if let country = result.country {
-                    addressComponents.append(country)
-                    print(country)
-                }
-
-                let address = addressComponents.joined(separator: ", ")
-                print("Current Address: \(address)")
+            if let error = error {
+                print("Reverse geocoding failed with error: \(error.localizedDescription)")
+                return
             }
+            
+            guard let result = response?.firstResult() else {
+                print("No results found")
+                return
+            }
+            
+            var addressComponents: [String] = []
+            
+            if let thoroughfare = result.thoroughfare {
+                addressComponents.append(thoroughfare)
+                print(thoroughfare)
+            }
+            
+            if let subLocality = result.subLocality {
+                addressComponents.append(subLocality)
+                print(subLocality)
+            }
+            
+            if let city = result.locality {
+                addressComponents.append(city)
+                print(city)
+            }
+            
+            if let postalCode = result.postalCode {
+                addressComponents.append(postalCode)
+                print(postalCode)
+            }
+            
+            if let country = result.country {
+                addressComponents.append(country)
+                print(country)
+            }
+            
+            let address = addressComponents.joined(separator: ", ")
+            print("Current Address: \(address)")
+        }
         
         guard passedError == nil else {
             print(passedError ?? "")
@@ -237,15 +229,13 @@ extension MapViewController: CLLocationManagerDelegate {
             }
             
             self.currentLocation = currentLocation
-
+            
             if mapView.isHidden {
                 mapView.isHidden = false
                 mapView.camera = camera
             } else {
                 mapView.animate(to: camera)
             }
-            
-            setupGooglePlaces()
         }
     }
     
@@ -256,7 +246,7 @@ extension MapViewController: CLLocationManagerDelegate {
 }
 
 // MARK: - Pass Selected Place
-extension MapViewController: PassLikelyPlace {
+extension MapViewController: PassLikelyPlaceDelegate {
     func passingSelectedPlace(_ place: GMSPlace) {
         selectedPlace = place
     }

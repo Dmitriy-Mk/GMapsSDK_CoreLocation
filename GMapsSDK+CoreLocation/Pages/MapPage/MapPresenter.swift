@@ -14,6 +14,10 @@ final class MapPresenter {
     var model: MapModelInput!
     var mapView: GMSMapView?
     
+    init(model: MapModelInput) {
+        self.model = model
+    }
+    
     private func showPath(polylineString: String, for map: GMSMapView) {
         let path = GMSPath(fromEncodedPath: polylineString)
         let polyline = GMSPolyline(path: path)
