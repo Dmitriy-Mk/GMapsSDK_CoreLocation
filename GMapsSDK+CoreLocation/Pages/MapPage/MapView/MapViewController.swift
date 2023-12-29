@@ -71,6 +71,7 @@ final class MapViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         setupGetPlacesButton()
+        locationManager.startUpdatingLocation()
         if let place = selectedPlace {
             guard let name = selectedPlace?.name else { return }
             guard let address = selectedPlace?.formattedAddress else { return }
@@ -95,9 +96,15 @@ final class MapViewController: UIViewController {
         }
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        locationManager.stopUpdatingLocation()
+    }
+    
     //MARK: - Business logic
     private func setupLocationManager() {
-        self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        self.locationManager.allowsBackgroundLocationUpdates = true
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
         self.locationManager.startUpdatingLocation()
         self.locationManager.distanceFilter = 70
     }

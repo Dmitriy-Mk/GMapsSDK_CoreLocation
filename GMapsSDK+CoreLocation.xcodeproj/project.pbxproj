@@ -504,6 +504,8 @@
 				DEVELOPMENT_TEAM = L4H488SRYA;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "GMapsSDK+CoreLocation/Resources/Info.plist";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Allow your current location";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow your current location";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -532,6 +534,8 @@
 				DEVELOPMENT_TEAM = L4H488SRYA;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "GMapsSDK+CoreLocation/Resources/Info.plist";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Allow your current location";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Allow your current location";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
