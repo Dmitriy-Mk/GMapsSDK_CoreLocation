@@ -11,10 +11,15 @@ import GooglePlaces
 class PlacesViewController: UIViewController {
     
     //MARK: - Data
-    var presenter: PlacesViewOutput!
-    let cellReuseID = "placesCell"
-    var dataPassingDelegate: PassLikelyPlaceDelegate?
+    private var likelyPlaces: [GMSPlace] = [] {
+        didSet {
+            self.placesTable.reloadData()
+        }
+    }
+    private let cellReuseID = "placesCell"
     private let placesTable = UITableView()
+    var dataPassingDelegate: PassLikelyPlaceDelegate?
+    var presenter: PlacesViewOutput!
     
     private func setupPlacesTableView() {
         placesTable.delegate = self
@@ -51,22 +56,23 @@ class PlacesViewController: UIViewController {
 
 extension PlacesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        presenter.placesCount
+        return likelyPlaces.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseID, for: indexPath)
-        let item = presenter.getPlace(at: indexPath.row)
+        let item = likelyPlaces[indexPath.row]
         
         cell.textLabel?.text = item.name
         cell.backgroundColor = .white
+        
         return cell
     }
 }
 
 extension PlacesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = presenter.getPlace(at: indexPath.row)
+        let item = likelyPlaces[indexPath.row]
         
         dataPassingDelegate?.passingSelectedPlace(item)
         navigationController?.popViewController(animated: true)
@@ -82,5 +88,11 @@ extension PlacesViewController: UITableViewDelegate {
             return 1
         }
         return 0
+    }
+}
+
+extension PlacesViewController: PlacesViewInput {
+    func reloadTableView(with datasource: [GMSPlace]) {
+        self.likelyPlaces = datasource
     }
 }

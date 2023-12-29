@@ -21,7 +21,7 @@ final class MapViewController: UIViewController {
     var presenter: MapViewOutput?
     
     // MARK: - UI objects and setups
-    private let getPlacesButton = UIButton()
+    private let getPlacesButton = UIButton(type: .system)
     
     private func addGetPlacesButtonAction() {
         getPlacesButton.addAction(UIAction(handler: { [weak self] _ in
@@ -34,16 +34,21 @@ final class MapViewController: UIViewController {
     }
     
     private func setupGetPlacesButton() {
+        view.addSubview(getPlacesButton)
+
         getPlacesButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         getPlacesButton.setTitle("Get Places", for: .normal)
         getPlacesButton.setTitleColor(.gray, for: .normal)
+        getPlacesButton.frame.origin = CGPoint(x: view.frame.minX + 75, y: view.frame.maxY - 100)
         getPlacesButton.frame.size = CGSize(width: view.frame.width * 0.6, height: 60)
         getPlacesButton.layer.cornerRadius = 8.0
         getPlacesButton.layer.borderWidth = 1.0
         getPlacesButton.layer.borderColor = UIColor.gray.cgColor
-        getPlacesButton.frame.origin = CGPoint(x: view.frame.minX + 75, y: view.frame.maxY - 100)
         getPlacesButton.backgroundColor = .white
-        view.addSubview(getPlacesButton)
+        getPlacesButton.contentMode = .scaleAspectFit
+        getPlacesButton.alpha = 1.0
+        getPlacesButton.isHidden = false
+
     }
     
     // MARK: - Lifecycle
@@ -55,11 +60,9 @@ final class MapViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        addGetPlacesButtonAction()
         locationManager = CLLocationManager()
         locationManager.delegate = self
-        view.backgroundColor = .cyan
-        setupGetPlacesButton()
-        addGetPlacesButtonAction()
     }
     
     @objc private func onTimerUpdate () {
@@ -67,6 +70,7 @@ final class MapViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        setupGetPlacesButton()
         if let place = selectedPlace {
             guard let name = selectedPlace?.name else { return }
             guard let address = selectedPlace?.formattedAddress else { return }
@@ -97,35 +101,6 @@ final class MapViewController: UIViewController {
         self.locationManager.startUpdatingLocation()
         self.locationManager.distanceFilter = 70
     }
-    
-    //    private func setupGooglePlaces() {
-    //        let placeFields: GMSPlaceField = [.name, .formattedAddress, .coordinate]
-    //
-    //        placesClient = GMSPlacesClient.shared()
-    //
-    //        likelyPlaces.removeAll()
-    //
-    //        placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: placeFields) {
-    //            [weak self] placeLikelihoods, error in
-    //
-    //            guard let strongSelf = self else {return}
-    //            guard error == nil else {
-    //                print("Current place error: \(error?.localizedDescription ?? "Unknowed Error Was Accure!")")
-    //                return
-    //            }
-    //            guard let placeLikelihoods = placeLikelihoods else {
-    //                print("No places found.")
-    //                return
-    //            }
-    //
-    //            for likelihood in placeLikelihoods {
-    //                let place = likelihood.place
-    //                strongSelf.likelyPlaces.append(place)
-    //            }
-    //
-    //            strongSelf.addGetPlacesButtonAction()
-    //        }
-    //    }
     
     private func getUserPlaceMark(by location: CLLocation) throws {
         let geocoder = GMSGeocoder()

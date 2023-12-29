@@ -84,10 +84,10 @@ extension MapPresenter: MapViewOutput {
                             print("Legs are note available!")
                             return
                         }
-                        let distance = legs[0]["distance"] as? NSDictionary
+//                        let distance = legs[0]["distance"] as? NSDictionary
 //                        let distanceValue = distance?["value"] as? Int ?? 0
                         
-                        let duration = legs[0]["duration"] as? NSDictionary
+//                        let duration = legs[0]["duration"] as? NSDictionary
 //                        let totalDurationInSeconds = duration?["value"] as? Int ?? 0
 
                         guard let points else { return }

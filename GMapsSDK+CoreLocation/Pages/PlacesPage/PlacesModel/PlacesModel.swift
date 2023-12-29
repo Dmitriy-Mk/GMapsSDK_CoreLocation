@@ -21,25 +21,27 @@ final class PlacesModel: PlacesModelInput {
         
         likelyPlaces.removeAll()
         
-        placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: placeFields) {
-            [weak self] placeLikelihoods, error in
-            
-            guard let strongSelf = self else {return}
-            guard error == nil else {
-                print("Current place error: \(error?.localizedDescription ?? "Unknowed Error Was Accure!")")
-                return
-            }
-            guard let placeLikelihoods = placeLikelihoods else {
-                print("No places found.")
-                return
-            }
-            
-            for likelihood in placeLikelihoods {
-                let place = likelihood.place
-                strongSelf.likelyPlaces.append(place)
+        DispatchQueue.main.async {
+            self.placesClient.findPlaceLikelihoodsFromCurrentLocation(withPlaceFields: placeFields) {
+                [weak self] placeLikelihoods, error in
+                
+                guard let strongSelf = self else {return}
+                guard error == nil else {
+                    print("Current place error: \(error?.localizedDescription ?? "Unknowed Error Was Accure!")")
+                    return
+                }
+                guard let placeLikelihoods = placeLikelihoods else {
+                    print("No places found.")
+                    return
+                }
+                
+                for likelihood in placeLikelihoods {
+                    let place = likelihood.place
+                    strongSelf.likelyPlaces.append(place)
+                }
+                
+                strongSelf.presenter.getPlaces(strongSelf.likelyPlaces)
             }
         }
-        
-        presenter.getPlaces(likelyPlaces)
     }
 }

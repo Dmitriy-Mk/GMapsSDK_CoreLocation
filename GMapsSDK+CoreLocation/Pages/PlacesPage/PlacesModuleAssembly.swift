@@ -16,7 +16,7 @@ final class PlacesModuleAssembly {
         let presenter = PlacesPresenter(model: model)
         
         view.presenter = presenter
-        
+        presenter.view = view
         model.presenter = presenter
         
         return view

@@ -8,7 +8,5 @@
 import GooglePlaces
 
 protocol PlacesViewOutput: AnyObject {
-    var placesCount: Int { get }
     func fetchPlaces()
-    func getPlace(at index: Int) -> GMSPlace
 }

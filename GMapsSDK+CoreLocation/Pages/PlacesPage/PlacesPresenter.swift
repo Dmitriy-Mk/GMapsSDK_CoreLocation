@@ -12,9 +12,7 @@ final class PlacesPresenter: PlacesViewOutput {
     
     private var likelyPlaces: [GMSPlace] = []
     private var model: PlacesModelInput!
-    var placesCount: Int {
-        likelyPlaces.count
-    }
+    weak var view: PlacesViewInput?
     
     init(model: PlacesModelInput) {
         self.model = model
@@ -23,15 +21,12 @@ final class PlacesPresenter: PlacesViewOutput {
     func fetchPlaces() {
         model.requestPlaces()
     }
-    
-    func getPlace(at index: Int) -> GMSPlace {
-        likelyPlaces[index]
-    }
 }
 
 extension PlacesPresenter: PlacesModelOutput {
     
     func getPlaces(_ places: [GMSPlace]) {
         self.likelyPlaces = places
+        view?.reloadTableView(with: self.likelyPlaces)
     }
 }
